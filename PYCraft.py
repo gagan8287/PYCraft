@@ -2,12 +2,15 @@
 """
 Created on Mon Mar 11 15:41:12 2019
 
-@author: Gagan Panwar,Firtosh kumar,Damandeep singh 
+@author: Gagan Panwar
 
 """
 
 import pygame
 import random
+
+#global variables
+
 Wwidth = 400
 Wheight = 600
 SIZE = 400
@@ -22,19 +25,21 @@ INVENTORY = {'grass':10,'wood':10,'brick':0,'water':10,'glass':0,'sand':10,'plan
 CRAFTING = {'brick':{'water':1,'dirt':2},'plank':{'wood':3},'glass':{'sand':3}}
 
 
-
+#2d list to store object at each and every place in the world
 
 WORLD = [[]*20]
 for i in  range(20):
     WORLD.insert(i,['','','','','','','','','','','','','','','','','','','',''])
   
-    
+#pygame functions for display the graphics    
     
 pygame.init()
 gameDisplay = pygame.display.set_mode((Wwidth,Wheight),pygame.RESIZABLE)
 pygame.display.set_caption("PY-Craft")
 clock = pygame.time.Clock()    
     
+
+#loading image of material and player and scaling them acc to the need of the program
 playerimg = pygame.transform.scale(pygame.image.load("E:\MINECRAFT\player.gif"),[WIDTH,HEIGHT])
 woodimg = pygame.transform.scale(pygame.image.load('E:\Minecraft\wood.gif'),[WIDTH,HEIGHT])
 waterimg = pygame.transform.scale(pygame.image.load('E:\Minecraft\water.gif'),[WIDTH,HEIGHT])
@@ -46,7 +51,7 @@ dirtimg = pygame.transform.scale(pygame.image.load('E:\Minecraft\dirt.gif'),[WID
 grassimg = pygame.transform.scale(pygame.image.load('E:\Minecraft\grass.gif'),[WIDTH,HEIGHT])
 
 
-
+#functions to draw the images in the window
 
 def drawplayer(x,y):
     gameDisplay.blit(playerimg,(x,y))
@@ -67,7 +72,7 @@ def water(x,y):
 def brick(x,y):
     gameDisplay.blit(brickimg,(x,y))
     
-    
+#function to create random world at the starting of the game    
     
 def worldcreate():
     for x in range(0,SIZE,WIDTH):
@@ -85,6 +90,7 @@ def worldcreate():
                 WORLD[i][j] = "sand" 
             elif rand >= 11 and rand <= 12:
                 WORLD[i][j] = "wood" 
+#function to draw updated world every frame
 
 def drawworld():
     for x in range(0,SIZE,WIDTH):
@@ -110,6 +116,37 @@ def drawworld():
                 elif TILE == 'brick':
                     brick(x,y)
                     
+ #function for placing objects in the world                   
+                    
+def place_obj(obj):
+    X = int(PLAYERX/20)
+    Y = int(PLAYERY/20)
+    if INVENTORY[obj]!=0 and WORLD[X][Y] != obj :
+        TILE = WORLD[X][Y]
+        if(TILE!='dirt'):
+            INVENTORY[TILE] += 1
+        WORLD[X][Y] = obj 
+        INVENTORY[obj] -= 1
+
+
+#function for picking objects from the world
+
+def pick_obj():
+    X = int(PLAYERX/20)
+    Y = int(PLAYERY/20)
+    TILE = WORLD[X][Y]
+    WORLD[X][Y] = 'dirt'
+    INVENTORY[TILE] = INVENTORY[TILE]+1
+
+#function for crafting objects
+
+def craft_obj(obj1,obj2):
+    if INVENTORY[obj1] >=CRAFTING[obj2][obj1] :
+        INVENTORY[obj2] += 1
+        INVENTORY[obj1] -= 3
+
+#draw text on screen    
+            
 def text_objects(text, font):
     textSurface = font.render(text, True, (0,0,0))
     return textSurface, textSurface.get_rect()
@@ -120,24 +157,17 @@ def message_display(text,X,Y):
     TextRect.center = ((X),(Y))
     gameDisplay.blit(TextSurf, TextRect)
 
-    
-    
 
-    
-    
-
-
-
-
-
-
+#calling function to create random world
 worldcreate()
-
-
+#game loop
 run = True
 while run:
+    #background color
     gameDisplay.fill((255,255,255)) 
+    #draw world
     drawworld()
+    #check all events
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
@@ -155,74 +185,25 @@ while run:
                 if PLAYERY > 0:
                     PLAYERY -= YCHAN
             if event.key  == pygame.K_1:
-                X = int(PLAYERX/20)
-                Y = int(PLAYERY/20)
-                if INVENTORY['grass']!=0 and WORLD[X][Y] != 'grass' :
-                    TILE = WORLD[X][Y]
-                    if(TILE!='dirt'):
-                        INVENTORY[TILE] += 1
-                    WORLD[X][Y] = 'grass' 
-                    INVENTORY['grass'] -= 1
+                place_obj('grass')
                     
             if event.key  == pygame.K_2:
-                X = int(PLAYERX/20)
-                Y = int(PLAYERY/20)
-                if INVENTORY['wood']!=0 and WORLD[X][Y] != 'wood': 
-                    TILE = WORLD[X][Y]
-                    if(TILE!='dirt'):
-                        INVENTORY[TILE] += 1
-                    WORLD[X][Y] = 'wood'
-                    INVENTORY['wood'] -= 1
+                place_obj('wood')
                     
             if event.key  == pygame.K_3:
-                X = int(PLAYERX/20)
-                Y = int(PLAYERY/20)
-                if INVENTORY['water']!=0 and WORLD[X][Y] != 'water':
-                    TILE = WORLD[X][Y]
-                    if(TILE!='dirt'):
-                        INVENTORY[TILE] += 1
-                    WORLD[X][Y] = 'water'
-                    INVENTORY['water'] -= 1
+                place_obj('water')
                     
             if event.key  == pygame.K_4:
-                X = int(PLAYERX/20)
-                Y = int(PLAYERY/20)
-                if INVENTORY['glass']!=0 and WORLD[X][Y] != 'glass':
-                    TILE = WORLD[X][Y]
-                    if(TILE!='dirt'):
-                        INVENTORY[TILE] += 1
-                    WORLD[X][Y] = 'glass'
-                    INVENTORY['glass'] -= 1
+                place_obj('glass')
                     
             if event.key  == pygame.K_5:
-                X = int(PLAYERX/20)
-                Y = int(PLAYERY/20)
-                if INVENTORY['plank']!=0 and WORLD[X][Y] != 'plank':
-                    TILE = WORLD[X][Y]
-                    if(TILE!='dirt'):
-                        INVENTORY[TILE] += 1
-                    WORLD[X][Y] = 'plank'
-                    INVENTORY['plank'] -= 1
+                place_obj('plank')
                     
             if event.key  == pygame.K_6:
-                X = int(PLAYERX/20)
-                Y = int(PLAYERY/20)
-                if INVENTORY['brick']!=0 and WORLD[X][Y] != 'brick':
-                    TILE = WORLD[X][Y]
-                    if(TILE!='dirt'):
-                        INVENTORY[TILE] += 1
-                    WORLD[X][Y] = 'brick'
-                    INVENTORY['brick'] -= 1
+                place_obj('brick')
                     
             if event.key  == pygame.K_7:
-                X = int(PLAYERX/20)
-                Y = int(PLAYERY/20)
-                if INVENTORY['sand']!=0 and WORLD[X][Y] != 'sand':
-                    TILE = WORLD[X][Y]
-                    if(TILE!='dirt'):
-                        INVENTORY[TILE] += 1
-                    WORLD[X][Y] = 'sand'
-                    INVENTORY['sand'] -= 1
+                place_obj('sand')
                     
             if event.key == pygame.K_r:
                 if INVENTORY['water'] >=CRAFTING['brick']['water'] and INVENTORY['dirt'] >=CRAFTING['brick']['dirt']:
@@ -231,25 +212,15 @@ while run:
                     INVENTORY['dirt'] -= 1
                     
             if event.key == pygame.K_u:
-                if INVENTORY['wood'] >=CRAFTING['plank']['wood'] :
-                    INVENTORY['plank'] += 1
-                    INVENTORY['wood'] -= 3
+                craft_obj('wood','plank')
                     
-            if event.key == pygame.K_i:
-                if INVENTORY['sand'] >=CRAFTING['glass']['sand'] :
-                    INVENTORY['glass'] += 1
-                    INVENTORY['sand'] -= 3    
-                   
+            if event.key == pygame.K_i:  
+                craft_obj('sand','glass')  
                     
             if event.key == pygame.K_SPACE:
-                X = int(PLAYERX/20)
-                Y = int(PLAYERY/20)
-                TILE = WORLD[X][Y]
-                WORLD[X][Y] = 'dirt'
-                INVENTORY[TILE] = INVENTORY[TILE]+1
-                print(INVENTORY[TILE])
+                pick_obj()
                 
-      
+    #drawing instructing and inventory on screen
 
     message_display('GRASS',80,450)
     message_display('WOOD',120,450)
@@ -287,14 +258,21 @@ while run:
     message_display('1 brick -> 1 water + 2 dirt',200,550)      
     message_display('1 plank -> 3 wood',200,560)      
     message_display('1 glass -> 3 sand',200,570)      
-    for y in range(0,SIZE, HEIGHT):
-        pygame.draw.line(gameDisplay,(0,0,0),(0,y),(SIZE,y))
-        pygame.draw.line(gameDisplay,(0,0,0),(y,0),(y,SIZE))
     
-    #D.rect(gameDisplay,(255,0,0),(PLAYERX,PLAYERY,HEIGHT,WIDTH))
+    
+    #for y in range(0,SIZE, HEIGHT):
+     #   pygame.draw.line(gameDisplay,(0,0,0),(0,y),(SIZE,y))
+      #  pygame.draw.line(gameDisplay,(0,0,0),(y,0),(y,SIZE))
+    
+    
+    
+    
+    #draw player 
     drawplayer(PLAYERX,PLAYERY) 
+    #update the display for the next frame
     pygame.display.update()
-    clock.tick(120)
-    
+    #set the frame rate
+    clock.tick(60)
+#quit    
 pygame.quit()
 quit()

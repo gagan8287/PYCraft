@@ -1,2 +1,2 @@
 # PYCraft
-2D version of minecraft in python
+2D and simple version of minecraft in python
